@@ -33,7 +33,12 @@ picks (TSK-73).
 mean, everything should be adjustable in the console, no?"; wl-xcon's TSK-75): each starts at the
 PI's value, and a number stays fixed only with its reason written beside it. The stages' own
 values (one disc in Alone, four in Fade-in, the distractors at full in Crowd) are conditions'
-values, which a person's live value overrides like any other.
+values, which a person's live value overrides like any other. **Each setting names its section**
+of the console's Task parameters tab, or of its Training tab (wl-xcon's console settings design,
+§7; the PI, 2026-11-16, "The task file names it"), and **declares a limit only where a value
+cannot be, or where wl-xcon's checks need one**, each with its reason (§4; the PI, 2026-11-16,
+"Hard limits only where impossible"): what crowds or overlaps at the values set is warned of
+where they are set, not capped here.
 
 Positions and sizes are degrees of visual angle at their place (the PI, 2026-10-19). Its event
 codes are wl-xcon's `tasks/allocation.py`'s, until this repository publishes one.
@@ -133,14 +138,16 @@ FIX = Stimulus("fix", at=(0.0, 0.0), looks=Disc(size=P("fix_size"), color=Gray(P
 #: **The ring** (§3.1): discs `disc_size` across (1° to start) on a true circle `ring_radius` from
 #: fixation (8° to start), the odd one object 0 and the ring turned to a new direction every trial,
 #: so the odd one is anywhere on it. **At the starts**, twelve discs on the 8° ring are 4.13°
-#: apart, so 1.5° windows never overlap. **Over the ranges they can**: on a ring of 8° windows
-#: wider than 2.06° would, and on the smallest ring, 4°, twelve discs are 2.07° apart, which the
-#: 1.5° windows already overlap at (computed 2026-11-07); wl-xcon's load check warns of it
-#: (`crowded-array`), and the trainer keeps them apart. **The fixation window, whose exit starts
-#: the answer, must stay clear of the discs' windows too**: on a ring smaller than the two radii
-#: together (5° and 2° at their highest) a look to the odd one could land inside it, never leave
-#: it, and end as no response with no reward; wl-xcon warns of it at load over the ranges and as
-#: a value set live makes it so (`answer-window-reaches-objects`).
+#: apart, so their 1.5° windows never overlap. **At other values they can**: on the 8° ring
+#: windows wider than 2.06° would, and on a 4° ring twelve discs are 2.07° apart, which the 1.5°
+#: windows already overlap at (computed 2026-11-07). No range holds them apart: wl-xcon judges
+#: the layout at the values set, at load and as each changes, and warns where windows overlap
+#: (`crowded-array`), where discs touch (`objects-touch`) and where a disc's window is smaller
+#: than the disc (`window-inside-object`); the trainer keeps them apart. **The fixation window,
+#: whose exit starts the answer, must stay clear of the discs' windows too**: on a ring smaller
+#: than the two radii together a look to the odd one could land inside it, never leave it, and
+#: end as no response with no reward; wl-xcon warns of it as the values set make it so
+#: (`answer-window-reaches-objects`).
 ARRAY = Stimulus(
     "search",
     # The array's center is the fixation point's, fixed with it.
@@ -161,6 +168,15 @@ ABORT_FIXATION_BREAK, REWARD_COMMANDED, ARRAY_ON, DISTRACTOR_ACQUIRED = 4101, 41
 OUTCOME_CORRECT, OUTCOME_WRONG_TARGET, OUTCOME_NO_RESPONSE = 4110, 4113, 4117
 OUTCOME_ABORT, OUTCOME_FIXATION_BREAK, OUTCOME_TARGET_BREAK = 4118, 4119, 4120
 TIMEOUT_ON = 4138
+
+
+#: **Why the training plan's settings keep both ends** (the console settings plan's Task 11, as
+#: `set_size` keeps its highest): wl-xcon's load checks read the whole range of each setting a
+#: staircase or a bar reads (`bad-staircase`, `bad-plan`) and refuse one with an open side, and
+#: the bars keep as many answers as a window's highest. The numbers were the builder's of
+#: 2026-11-07, wide enough for a trainer; a side a standard reason covers takes that instead.
+PLANNED = ("the training plan's load checks read its whole range, so it keeps both ends; "
+           "the builder's")
 
 
 def _timeout(state: str, outcome: Outcome, reason: int) -> State:
@@ -188,66 +204,107 @@ search = Trial(
         # The same window after the go, the fixation point gone: nothing is drawn there on
         # purpose, and leaving it is the answer's saccade starting.
         Window("center", at=(0.0, 0.0), radius=P("fix_window"), on=REMEMBERED),
-        ObjectWindows(of="search", radius=P("object_window")),
+        # Each disc's window a multiple of its own radius, `object_window` (the console settings
+        # design's §5; the PI, 2026-11-16, "Grows in proportion"), so it follows its disc.
+        ObjectWindows(of="search", scale=P("object_window")),
     ],
     params=[
-        # The PI's starting values (§3.1, "that looks good"), each a value the trainer may change.
-        # The ranges are the builder's, wide enough for a trainer and inside what the checks
-        # hold (the fix round, 2026-11-07).
-        Param("inter_trial", unit="s", low=0.0, high=10.0, start=1.0),
-        Param("fix_acquisition", unit="s", low=0.5, high=10.0, start=2.0),
-        Param("fix_hold", unit="s", low=0.05, high=2.0, start=0.5),
-        Param("response_deadline", unit="s", low=0.1, high=3.0, start=1.0),
-        Param("target_hold", unit="s", low=0.05, high=1.0, start=0.3),
-        Param("timeout", unit="s", low=0.0, high=10.0, start=2.0),
-        # The PI's sizes (§3.1). At the starts, twelve discs on the 8° ring are 4.13° apart, so a
-        # window wider than 2.06° would overlap its neighbor's (computed 2026-11-07); over the
-        # ranges below they can overlap, which the load check warns of (`crowded-array`).
-        Param("fix_window", unit="deg", low=0.5, high=5.0, start=2.0),
-        Param("object_window", unit="deg", low=0.5, high=2.0, start=1.5),
-        Param("disc_size", unit="deg", low=0.2, high=3.0, start=1.0),
-        Param("ring_radius", unit="deg", low=4.0, high=14.0, start=8.0),
-        Param("fix_size", unit="deg", low=0.1, high=1.0, start=0.3),
-        # The colors' brightness at full, cd/m² of macaque luminance ("15 cd/m² on every rig",
-        # §3.2), the color set file's own to start; Fade-in's distractors take a share of it.
-        Param("color_luminance", unit="cd/m2", low=1.0, high=30.0,
-              start=ISOHUE.luminance_cd_m2),
-        # Absolute luminance, D65 white, as the lab's other fixation points (the PI, 2026-10-07).
-        Param("fix_luminance", unit="cd/m2", low=0.0, high=80.0, start=40.0),
-        # How many discs: one in Alone, four in Fade-in, Crowd's staircase from 4 to 12.
-        Param("set_size", unit="objects", low=1, high=12, start=4),
-        # The distractors' luminance as a share of the odd one's: Fade-in's staircase from faint;
-        # full in Crowd. Its start is the staircase's first level, so Fade-in starts faint.
-        Param("distractor_fraction", unit="fraction", low=0.0, high=1.0, start=0.1),
-        # Turned to a new direction every trial (`TASK.draws`).
-        Param("array_rotation", unit="deg", low=0.0, high=360.0, start=0.0),
-        # The two looks each trial's pairing gives, and the pairings pooled.
-        Param("odd_color", unit="appearance", choices=tuple(ODD.values())),
-        Param("distractor_color", unit="appearance", choices=tuple(AMONG.values())),
-        Param("pairings", unit="pairings", low=1, high=4095, start=FIRST_PAIRINGS),
+        # **Timing**, by their unit (the console settings design's §7): the PI's starting values
+        # (§3.1, "that looks good"), each a value the trainer may change. A time below 0 cannot
+        # be; none has a highest: a hold its state's own bound always ends first, below, is a
+        # trial that cannot finish, refused where it is set (`impossible-trial`).
+        Param("inter_trial", unit="s", low=0.0, start=1.0),
+        Param("fix_acquisition", unit="s", low=0.0, start=2.0),
+        Param("fix_hold", unit="s", low=0.0, start=0.5),
+        Param("response_deadline", unit="s", low=0.0, start=1.0),
+        Param("target_hold", unit="s", low=0.0, start=0.3),
+        Param("timeout", unit="s", low=0.0, start=2.0),
+        # **Gaze windows** (§3.1): the fixation window's radius in degrees, 2°; the discs'
+        # windows a multiple of each disc's radius, 3.0 -- the 1.5° about a 1° disc they were.
+        # A size's lowest stays open (one of 0 is refused where it is set); a multiple below 0
+        # cannot be. Windows that overlap, or one smaller than its disc, are warned of at the
+        # values set (`crowded-array`, `window-inside-object`), as the fixation window reaching
+        # the discs' is (`answer-window-reaches-objects`).
+        Param("fix_window", unit="deg", start=2.0, section="Gaze windows"),
+        Param("object_window", unit="× disc radius", low=0.0, start=3.0,
+              section="Gaze windows"),
+        # **The fixation point** (§3.1): its size, and its absolute luminance, D65 white, as the
+        # lab's other fixation points (the PI, 2026-10-07), bounded at the default calibration's
+        # white until a panel is measured (wl-xcon's COL-29).
+        Param("fix_size", unit="deg", start=0.3, section="Stimuli/fixation point"),
+        Param("fix_luminance", unit="cd/m2", low=0.0, high=80.0, start=40.0,
+              why="white on the default calibration, the published sRGB 80 cd/m² (COL-29)",
+              section="Stimuli/fixation point"),
+        # **The array** (§3.1): the discs' size, its lowest open (a disc of 0° is refused where it
+        # is set), and the ring's radius, a distance, which below 0 cannot be; how many discs, one
+        # in Alone, four in Fade-in, Crowd's staircase from 4 to 12, a highest kept since a run
+        # builds every disc before its first frame (wl-xcon's `unbounded-set-size` refuses a set
+        # size without one); and the ring's direction, turned anew every trial (`TASK.draws`),
+        # written from 0 to 360.
+        Param("disc_size", unit="deg", start=1.0, section="Stimuli/array"),
+        Param("ring_radius", unit="deg", low=0.0, start=8.0, section="Stimuli/array"),
+        Param("set_size", unit="objects", low=1, high=12, start=4,
+              why="a run builds every disc before its first frame, so a set size needs a "
+                  "highest: 12, Crowd's hardest",
+              section="Stimuli/array"),
+        Param("array_rotation", unit="deg", low=0.0, high=360.0, start=0.0,
+              why="a direction, written from 0 to 360 (the PI, 2026-10-30)",
+              section="Stimuli/array"),
+        # **The colors** (§3.2): the two looks each trial's pairing gives; their brightness at
+        # full, cd/m² of macaque luminance ("15 cd/m² on every rig"), the color set file's own to
+        # start, bounded as the fixation point's is (COL-29), its lowest open: at 0 or below a
+        # color has no chromaticity, and a value a panel cannot show is refused where it is set
+        # (`unrealizable-color`); and the distractors' luminance as a share of the odd one's,
+        # Fade-in's staircase from faint, full in Crowd, its start the staircase's first level,
+        # so Fade-in starts faint.
+        Param("odd_color", unit="appearance", choices=tuple(ODD.values()), section="Colors"),
+        Param("distractor_color", unit="appearance", choices=tuple(AMONG.values()),
+              section="Colors"),
+        Param("color_luminance", unit="cd/m2", high=80.0, start=ISOHUE.luminance_cd_m2,
+              why="white on the default calibration, the published sRGB 80 cd/m² (COL-29)",
+              section="Colors"),
+        Param("distractor_fraction", unit="fraction", low=0.0, high=1.0, start=0.1,
+              section="Colors"),
+        # **The pairings pooled** (§3.2): a pool holds one at least; a value past its twelve
+        # pairings the pool refuses itself, so it declares no highest.
+        Param("pairings", unit="pairings", low=1, start=FIRST_PAIRINGS, section="Pairings"),
         # **The bars** (§3.4), one pair for every stage: up at 80% right of the last 50 answers
         # at the stage's hardest step, back below 50% of the last 50 first answers ("80%
         # correct, last 50 trials"; "Below 50% of the last 50"), each read at every judgment.
-        Param("move_up_bar", unit="fraction", low=0.5, high=1.0, start=0.8),
-        Param("move_up_window", unit="answers", low=5, high=200, start=50),
-        Param("move_back_bar", unit="fraction", low=0.05, high=0.95, start=0.5),
-        Param("move_back_window", unit="answers", low=5, high=200, start=50),
+        # **These and the staircases' settings keep both ends** (`PLANNED`): a bar is above 0, and
+        # each window keeps as many answers as its highest.
+        Param("move_up_bar", unit="fraction", low=0.5, high=1.0, start=0.8, why=PLANNED,
+              section="Training/bars"),
+        Param("move_up_window", unit="answers", low=1, high=200, start=50, why=PLANNED,
+              section="Training/bars"),
+        Param("move_back_bar", unit="fraction", low=0.05, high=1.0, start=0.5, why=PLANNED,
+              section="Training/bars"),
+        Param("move_back_window", unit="answers", low=1, high=200, start=50, why=PLANNED,
+              section="Training/bars"),
         # How far a suggestion's bar may be missed before it is withdrawn, in answers (the PI,
         # 2026-11-08: "Stay up until 3 below"): up at 40 of 50, it goes only below 37.
-        Param("suggestion_margin", unit="answers", low=0, high=20, start=3),
+        Param("suggestion_margin", unit="answers", low=0, high=20, start=3, why=PLANNED,
+              section="Training/suggestions"),
         # **The staircases** (§3.4, "Automatic within a stage"): three right a level harder, one
         # wrong a level easier, in both stages [@levitt1971transformed]; and each stage's step,
         # the distractors by a tenth of full, the discs one at a time ("set size starts at 4, and
-        # finer steps"), the builder's (§7).
-        Param("staircase_down", unit="answers", low=1, high=10, start=3),
-        Param("staircase_up", unit="answers", low=1, high=10, start=1),
-        Param("fade_in_step", unit="fraction", low=0.05, high=0.9, start=0.1),
-        Param("crowd_step", unit="objects", low=1, high=8, start=1),
+        # finer steps"), the builder's (§7); a step is above 0. A step set so fine it makes no
+        # levels is warned of where it is set (`staircase-steps-unmade`).
+        Param("staircase_down", unit="answers", low=1, high=10, start=3, why=PLANNED,
+              section="Training/staircases"),
+        Param("staircase_up", unit="answers", low=1, high=10, start=1, why=PLANNED,
+              section="Training/staircases"),
+        Param("fade_in_step", unit="fraction", low=0.05, high=1.0, start=0.1, why=PLANNED,
+              section="Training/staircases"),
+        Param("crowd_step", unit="objects", low=1, high=8, start=1, why=PLANNED,
+              section="Training/staircases"),
         # Each staircase's easiest level, where its stage starts faintest or fewest: the
         # distractors at a tenth of full, four discs ("set size starts at 4"). Their hardest are
         # the stages' own definitions (full brightness, all 12 discs), so they stay fixed below.
-        Param("fade_in_floor", unit="fraction", low=0.0, high=0.9, start=0.1),
-        Param("crowd_floor", unit="objects", low=2, high=11, start=4),
+        Param("fade_in_floor", unit="fraction", low=0.0, high=1.0, start=0.1,
+              section="Training/staircases"),
+        Param("crowd_floor", unit="objects", low=1, high=11, start=4, why=PLANNED,
+              section="Training/staircases"),
     ],
     states=[
         # The time between trials, a blank screen.
@@ -279,8 +336,9 @@ search = Trial(
                     "early",
                     do=[Hide("fix"), Mark(ABORT_FIXATION_BREAK), Mark(TIMEOUT_ON)],
                 ),
-                # Longer than any legal `fix_hold`, as the lab's other tasks bound a hold: a bound
-                # on a hold the engine runs, no number a trainer sets.
+                # A bound on a hold the engine runs, as the lab's other tasks bound a hold, no
+                # number a trainer sets: a `fix_hold` it always ends first is refused where it is
+                # set, a trial that cannot finish (`impossible-trial`).
                 On(After(10.0), Outcome.NO_FIXATION),
             ],
         ),
@@ -324,8 +382,8 @@ search = Trial(
                     do=[Mark(OUTCOME_CORRECT), Mark(REWARD_COMMANDED), Reward("reward_correct")],
                 ),
                 On(Exited("search.target"), "broke", do=[Hide("search"), Mark(TIMEOUT_ON)]),
-                # Longer than any legal `target_hold`: a hold runs its own time; a bound, no number
-                # a trainer sets.
+                # A hold runs its own time; a bound, no number a trainer sets: a `target_hold` it
+                # always ends first is refused where it is set (`impossible-trial`).
                 On(After(3.0), Outcome.NO_RESPONSE, do=[Mark(OUTCOME_NO_RESPONSE)]),
             ],
         ),
