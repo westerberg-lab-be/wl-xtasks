@@ -38,7 +38,11 @@ of the console's Task parameters tab, or of its Training tab (wl-xcon's console 
 §7; the PI, 2026-11-16, "The task file names it"), and **declares a limit only where a value
 cannot be, or where wl-xcon's checks need one**, each with its reason (§4; the PI, 2026-11-16,
 "Hard limits only where impossible"): what crowds or overlaps at the values set is warned of
-where they are set, not capped here.
+where they are set, not capped here. **Each setting carries its plain name and one sentence saying
+what it is**, every count is a whole number and the two bars are percents, and the bars and the
+staircases read as three rules, each one box with one Apply (wl-xcon's console interface design,
+goals 5, 6 and 8; the PI, 2026-11-19: "descriptions are too long ... what are pairings? for
+necessary whole numbers (set size), there should not be a decimal option for entry").
 
 Positions and sizes are degrees of visual angle at their place (the PI, 2026-10-19). Its event
 codes are wl-xcon's `tasks/allocation.py`'s, until this repository publishes one.
@@ -68,6 +72,7 @@ from wl_xcon.task import (
     Disc,
     Entered,
     Exited,
+    Group,
     Hide,
     Hold,
     Mark,
@@ -213,43 +218,77 @@ search = Trial(
         # (§3.1, "that looks good"), each a value the trainer may change. A time below 0 cannot
         # be; none has a highest: a hold its state's own bound always ends first, below, is a
         # trial that cannot finish, refused where it is set (`impossible-trial`).
-        Param("inter_trial", unit="s", low=0.0, start=1.0),
-        Param("fix_acquisition", unit="s", low=0.0, start=2.0),
-        Param("fix_hold", unit="s", low=0.0, start=0.5),
-        Param("response_deadline", unit="s", low=0.0, start=1.0),
-        Param("target_hold", unit="s", low=0.0, start=0.3),
-        Param("timeout", unit="s", low=0.0, start=2.0),
+        Param("inter_trial", unit="s", low=0.0, start=1.0,
+              label="Time between trials",
+              help="The blank screen before each trial begins, in seconds."),
+        Param("fix_acquisition", unit="s", low=0.0, start=2.0,
+              label="Time to find the fixation point",
+              help="How long the animal has to look at the fixation point once it comes on."),
+        Param("fix_hold", unit="s", low=0.0, start=0.5,
+              label="Fixation hold",
+              help="How long the animal holds its gaze on the fixation point before the discs "
+                   "appear."),
+        Param("response_deadline", unit="s", low=0.0, start=1.0,
+              label="Time to answer",
+              help="How long the animal has, once the discs appear, to start its look away from "
+                   "the center."),
+        Param("target_hold", unit="s", low=0.0, start=0.3,
+              label="Hold on the odd disc",
+              help="How long the animal keeps looking at the odd disc to earn its reward."),
+        Param("timeout", unit="s", low=0.0, start=2.0,
+              label="Timeout after an error",
+              help="How long the screen stays blank after an error, with no reward."),
         # **Gaze windows** (§3.1): the fixation window's radius in degrees, 2°; the discs'
         # windows a multiple of each disc's radius, 3.0 -- the 1.5° about a 1° disc they were.
         # A size's lowest stays open (one of 0 is refused where it is set); a multiple below 0
         # cannot be. Windows that overlap, or one smaller than its disc, are warned of at the
         # values set (`crowded-array`, `window-inside-object`), as the fixation window reaching
         # the discs' is (`answer-window-reaches-objects`).
-        Param("fix_window", unit="deg", start=2.0, section="Gaze windows"),
+        Param("fix_window", unit="deg", start=2.0, section="Gaze windows",
+              label="Fixation window",
+              help="How far from the fixation point the eye may be and still count as on it, in "
+                   "degrees."),
         Param("object_window", unit="× disc radius", low=0.0, start=3.0,
-              section="Gaze windows"),
+              section="Gaze windows",
+              label="Disc window",
+              help="How far from a disc's center the eye counts as on that disc, in multiples of "
+                   "the disc's radius."),
         # **The fixation point** (§3.1): its size, and its absolute luminance, D65 white, as the
         # lab's other fixation points (the PI, 2026-10-07), bounded at the default calibration's
         # white until a panel is measured (wl-xcon's COL-29).
-        Param("fix_size", unit="deg", start=0.3, section="Stimuli/fixation point"),
+        Param("fix_size", unit="deg", start=0.3, section="Stimuli/fixation point",
+              label="Fixation point size",
+              help="How wide the fixation point is, in degrees."),
         Param("fix_luminance", unit="cd/m2", low=0.0, high=80.0, start=40.0,
               why="white on the default calibration, the published sRGB 80 cd/m² (COL-29)",
-              section="Stimuli/fixation point"),
+              section="Stimuli/fixation point",
+              label="Fixation point brightness",
+              help="How bright the white fixation point is, in cd/m²."),
         # **The array** (§3.1): the discs' size, its lowest open (a disc of 0° is refused where it
         # is set), and the ring's radius, a distance, which below 0 cannot be; how many discs, one
         # in Alone, four in Fade-in, Crowd's staircase from 4 to 12, up to 36 by hand, a highest
         # kept since a run builds every disc before its first frame (wl-xcon's `unbounded-set-size`
         # refuses a set size without one); and the ring's direction, turned anew every trial
         # (`TASK.draws`), written from 0 to 360.
-        Param("disc_size", unit="deg", start=1.0, section="Stimuli/array"),
-        Param("ring_radius", unit="deg", low=0.0, start=8.0, section="Stimuli/array"),
+        Param("disc_size", unit="deg", start=1.0, section="Stimuli/array",
+              label="Disc size",
+              help="How wide each disc is, in degrees."),
+        Param("ring_radius", unit="deg", low=0.0, start=8.0, section="Stimuli/array",
+              label="Ring distance from center",
+              help="How far the ring of discs sits from the fixation point, in degrees."),
         Param("set_size", unit="objects", low=1, high=36, start=4,
               why="a run builds every disc before its first frame, so a set size needs a "
                   "highest: 36, the PI's (2026-11-19)",
-              section="Stimuli/array"),
+              section="Stimuli/array",
+              label="Number of discs",
+              help="How many discs are on the ring, the odd one included.",
+              whole=True),
         Param("array_rotation", unit="deg", low=0.0, high=360.0, start=0.0,
               why="a direction, written from 0 to 360 (the PI, 2026-10-30)",
-              section="Stimuli/array"),
+              section="Stimuli/array",
+              label="Odd disc direction",
+              help="Where around the ring the odd disc sits, in degrees; the rig picks it at "
+                   "random each trial."),
         # **The colors** (§3.2): the two looks each trial's pairing gives; their brightness at
         # full, cd/m² of macaque luminance ("15 cd/m² on every rig"), the color set file's own to
         # start, bounded as the fixation point's is (COL-29), its lowest open: at 0 or below a
@@ -257,54 +296,104 @@ search = Trial(
         # (`unrealizable-color`); and the distractors' luminance as a share of the odd one's,
         # Fade-in's staircase from faint, full in Crowd, its start the staircase's first level,
         # so Fade-in starts faint.
-        Param("odd_color", unit="appearance", choices=tuple(ODD.values()), section="Colors"),
+        Param("odd_color", unit="appearance", choices=tuple(ODD.values()), section="Colors",
+              label="Odd disc color",
+              help="The color of the one disc that differs, taken each trial from the pairings "
+                   "ticked."),
         Param("distractor_color", unit="appearance", choices=tuple(AMONG.values()),
-              section="Colors"),
+              section="Colors",
+              label="Distractor color",
+              help="The color of the other discs, taken each trial from the pairings ticked."),
         Param("color_luminance", unit="cd/m2", high=80.0, start=ISOHUE.luminance_cd_m2,
               why="white on the default calibration, the published sRGB 80 cd/m² (COL-29)",
-              section="Colors"),
+              section="Colors",
+              label="Color brightness",
+              help="How bright the colors are at full, in cd/m²; the odd disc is at full, the "
+                   "distractors a share of it."),
         Param("distractor_fraction", unit="fraction", low=0.0, high=1.0, start=0.1,
-              section="Colors"),
+              section="Colors",
+              label="Distractor brightness",
+              help="How bright the distractors are, as a fraction of the odd disc's brightness."),
         # **The pairings pooled** (§3.2): a pool holds one at least; a value past its twelve
-        # pairings the pool refuses itself, so it declares no highest.
-        Param("pairings", unit="pairings", low=1, start=FIRST_PAIRINGS, section="Pairings"),
+        # pairings the pool refuses itself, so it declares no highest. With the colors it pairs
+        # (the console interface rework's Task 9).
+        Param("pairings", unit="pairings", low=1, start=FIRST_PAIRINGS, section="Colors",
+              label="Color pairings",
+              help="Pairs of an odd disc color and a distractor color; each trial draws one of the "
+                   "pairs ticked.",
+              whole=True),
         # **The bars** (§3.4), one pair for every stage: up at 80% right of the last 50 answers
         # at the stage's hardest step, back below 50% of the last 50 first answers ("80%
         # correct, last 50 trials"; "Below 50% of the last 50"), each read at every judgment.
         # **These and the staircases' settings keep both ends** (`PLANNED`): a bar is above 0, and
         # each window keeps as many answers as its highest.
         Param("move_up_bar", unit="fraction", low=0.5, high=1.0, start=0.8, why=PLANNED,
-              section="Training/bars"),
+              section="Training/bars",
+              label="Score to move up",
+              help="The share of answers right at which the rig suggests moving up a stage.",
+              percent=True),
         Param("move_up_window", unit="answers", low=1, high=200, start=50, why=PLANNED,
-              section="Training/bars"),
+              section="Training/bars",
+              label="Answers counted to move up",
+              help="How many of the latest answers at the stage's hardest step the move-up score "
+                   "is taken over.",
+              whole=True),
         Param("move_back_bar", unit="fraction", low=0.05, high=1.0, start=0.5, why=PLANNED,
-              section="Training/bars"),
+              section="Training/bars",
+              label="Score to move back",
+              help="The share of answers right below which the rig suggests moving back a stage.",
+              percent=True),
         Param("move_back_window", unit="answers", low=1, high=200, start=50, why=PLANNED,
-              section="Training/bars"),
+              section="Training/bars",
+              label="Answers counted to move back",
+              help="How many of the latest answers the move-back score is taken over.",
+              whole=True),
         # How far a suggestion's bar may be missed before it is withdrawn, in answers (the PI,
         # 2026-11-08: "Stay up until 3 below"): up at 40 of 50, it goes only below 37.
         Param("suggestion_margin", unit="answers", low=0, high=20, start=3, why=PLANNED,
-              section="Training/suggestions"),
+              section="Training/suggestions",
+              label="Suggestion margin",
+              help="How many answers a score may fall short of its bar before the rig withdraws "
+                   "its suggestion.",
+              whole=True),
         # **The staircases** (§3.4, "Automatic within a stage"): three right a level harder, one
         # wrong a level easier, in both stages [@levitt1971transformed]; and each stage's step,
         # the distractors by a tenth of full, the discs one at a time ("set size starts at 4, and
         # finer steps"), the builder's (§7); a step is above 0. A step set so fine it makes no
         # levels is warned of where it is set (`staircase-steps-unmade`).
         Param("staircase_down", unit="answers", low=1, high=10, start=3, why=PLANNED,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Right in a row to step harder",
+              help="How many right answers in a row make the staircase one level harder.",
+              whole=True),
         Param("staircase_up", unit="answers", low=1, high=10, start=1, why=PLANNED,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Wrong in a row to step easier",
+              help="How many wrong answers in a row make the staircase one level easier.",
+              whole=True),
         Param("fade_in_step", unit="fraction", low=0.05, high=1.0, start=0.1, why=PLANNED,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Fade-in brightness step",
+              help="How much the distractors brighten or dim per Fade-in level, as a fraction of "
+                   "full."),
         Param("crowd_step", unit="objects", low=1, high=8, start=1, why=PLANNED,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Crowd disc step",
+              help="How many discs Crowd adds or takes away per level.",
+              whole=True),
         # Each staircase's easiest level, where its stage starts faintest or fewest: the
         # distractors at a tenth of full, four discs ("set size starts at 4"). Their hardest are
         # the stages' own definitions (full brightness, all 12 discs), so they stay fixed below.
         Param("fade_in_floor", unit="fraction", low=0.0, high=1.0, start=0.1,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Faintest distractors in Fade-in",
+              help="How faint the distractors are at Fade-in's easiest level, as a fraction of "
+                   "full."),
         Param("crowd_floor", unit="objects", low=1, high=11, start=4, why=PLANNED,
-              section="Training/staircases"),
+              section="Training/staircases",
+              label="Fewest discs in Crowd",
+              help="How many discs Crowd's easiest level shows.",
+              whole=True),
     ],
     states=[
         # The time between trials, a blank screen.
@@ -525,4 +614,18 @@ TASK = Task(
     # the odd one's place on the ring is random each trial, so the animal learns its color, not a
     # place; a narrower draw would teach a place.
     draws={"array_rotation": Uniform(0.0, 360.0, repeat=SAME)},
+    # **The training rules, each one box with one Apply** (wl-xcon's console interface design,
+    # goal 8; the PI, 2026-11-19, "One box after Timing"), read as the trainer says them: each
+    # setting's field stands in its place, the bars as percents.
+    groups=(
+        Group("Move up", ("move_up_bar", "move_up_window"),
+              "Move up when at least {move_up_bar} of the last {move_up_window} answers at the "
+              "hardest step are right"),
+        Group("Move back", ("move_back_bar", "move_back_window"),
+              "Move back when fewer than {move_back_bar} of the last {move_back_window} answers "
+              "are right"),
+        Group("Staircase", ("staircase_down", "staircase_up"),
+              "One level harder after {staircase_down} right in a row, one level easier after "
+              "{staircase_up} wrong in a row"),
+    ),
 )
