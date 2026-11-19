@@ -39,8 +39,9 @@ of the console's Task parameters tab, or of its Training tab (wl-xcon's console 
 cannot be, or where wl-xcon's checks need one**, each with its reason (§4; the PI, 2026-11-16,
 "Hard limits only where impossible"): what crowds or overlaps at the values set is warned of
 where they are set, not capped here. **Each setting carries its plain name and one sentence saying
-what it is**, every count is a whole number and the two bars are percents, and the bars and the
-staircases read as three rules, each one box with one Apply (wl-xcon's console interface design,
+what it is**, every count is a whole number, the bars and the distractors' brightness fractions are
+percents (the PI, 2026-11-19), and the bars and the staircases read as three rules, each one box
+with one Apply (wl-xcon's console interface design,
 goals 5, 6 and 8; the PI, 2026-11-19: "descriptions are too long ... what are pairings? for
 necessary whole numbers (set size), there should not be a decimal option for entry").
 
@@ -313,7 +314,8 @@ search = Trial(
         Param("distractor_fraction", unit="fraction", low=0.0, high=1.0, start=0.1,
               section="Colors",
               label="Distractor brightness",
-              help="How bright the distractors are, as a fraction of the odd disc's brightness."),
+              help="How bright the distractors are, as a percent of the odd disc's brightness.",
+              percent=True),
         # **The pairings pooled** (§3.2): a pool holds one at least; a value past its twelve
         # pairings the pool refuses itself, so it declares no highest. With the colors it pairs
         # (the console interface rework's Task 9).
@@ -374,8 +376,9 @@ search = Trial(
         Param("fade_in_step", unit="fraction", low=0.05, high=1.0, start=0.1, why=PLANNED,
               section="Training/staircases",
               label="Fade-in brightness step",
-              help="How much the distractors brighten or dim per Fade-in level, as a fraction of "
-                   "full."),
+              help="How much the distractors brighten or dim per Fade-in level, as a percent of "
+                   "full.",
+              percent=True),
         Param("crowd_step", unit="objects", low=1, high=8, start=1, why=PLANNED,
               section="Training/staircases",
               label="Crowd disc step",
@@ -387,8 +390,9 @@ search = Trial(
         Param("fade_in_floor", unit="fraction", low=0.0, high=1.0, start=0.1,
               section="Training/staircases",
               label="Faintest distractors in Fade-in",
-              help="How faint the distractors are at Fade-in's easiest level, as a fraction of "
-                   "full."),
+              help="How faint the distractors are at Fade-in's easiest level, as a percent of "
+                   "full.",
+              percent=True),
         Param("crowd_floor", unit="objects", low=1, high=11, start=4, why=PLANNED,
               section="Training/staircases",
               label="Fewest discs in Crowd",
