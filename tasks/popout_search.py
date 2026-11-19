@@ -237,15 +237,15 @@ search = Trial(
               section="Stimuli/fixation point"),
         # **The array** (§3.1): the discs' size, its lowest open (a disc of 0° is refused where it
         # is set), and the ring's radius, a distance, which below 0 cannot be; how many discs, one
-        # in Alone, four in Fade-in, Crowd's staircase from 4 to 12, a highest kept since a run
-        # builds every disc before its first frame (wl-xcon's `unbounded-set-size` refuses a set
-        # size without one); and the ring's direction, turned anew every trial (`TASK.draws`),
-        # written from 0 to 360.
+        # in Alone, four in Fade-in, Crowd's staircase from 4 to 12, up to 36 by hand, a highest
+        # kept since a run builds every disc before its first frame (wl-xcon's `unbounded-set-size`
+        # refuses a set size without one); and the ring's direction, turned anew every trial
+        # (`TASK.draws`), written from 0 to 360.
         Param("disc_size", unit="deg", start=1.0, section="Stimuli/array"),
         Param("ring_radius", unit="deg", low=0.0, start=8.0, section="Stimuli/array"),
-        Param("set_size", unit="objects", low=1, high=12, start=4,
+        Param("set_size", unit="objects", low=1, high=36, start=4,
               why="a run builds every disc before its first frame, so a set size needs a "
-                  "highest: 12, Crowd's hardest",
+                  "highest: 36, the PI's (2026-11-19)",
               section="Stimuli/array"),
         Param("array_rotation", unit="deg", low=0.0, high=360.0, start=0.0,
               why="a direction, written from 0 to 360 (the PI, 2026-10-30)",
