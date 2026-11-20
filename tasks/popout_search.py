@@ -611,12 +611,14 @@ def _structure(array: Stimulus, answer: list[State], *, kind: int | None = None,
         # Black ("On black, faint to full"): the default bottom layer, `None`.
         background=None,
         # Its counting table: the array appears on entering the delay, the go after it. A break
-        # after it -- a look to empty space, leaving the odd one before its hold, an early saccade
-        # in the delay -- is spent, used up as a wrong disc's trial is: the PI's rule makes the
-        # three one kind of error, each with the timeout (§3.1), and the lab's other pop-out
-        # search spends them too (wl-xcon's `tasks/visual_search.py`). A break before the array is
-        # owed. Each stage is one condition worked on past its first trial, so neither brings a
-        # trial back: the next is drawn afresh.
+        # after it -- a look to empty space, leaving the odd one before its hold -- is spent, used
+        # up as a wrong disc's trial is: the PI's rule makes these and an early saccade one kind of
+        # error, each with the timeout (§3.1), and the lab's other pop-out search spends them too
+        # (wl-xcon's `tasks/visual_search.py`). **An early saccade in the delay is owed**, not
+        # spent: it ends the trial a fixation break, which wl-xcon owes wherever it falls (its
+        # `task.REPEATED`), as the first pop-out design owes a break before the go; and so is a
+        # break before the array. Each stage is one condition worked on past its first trial, so
+        # neither brings a trial back: the next is drawn afresh.
         counting=Counting(after_stimulus=SPENT, appears="delay"),
         # The fixation point's window scores it throughout: before the go a hold, after it the
         # answer's saccade starting as the eye leaves it, or on a catch the hold kept.
