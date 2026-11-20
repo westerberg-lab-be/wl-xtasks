@@ -78,3 +78,10 @@ there instead (the PI, 2026-10-08; wl-xcon's ADR-0010).
   a path relative to its own file, never from the working directory.
 - Event codes: wl-xcon's `tasks/allocation.py` until this repository publishes its own; a new
   code is added there, by name, before a task strobes it.
+- **The fixation point, in every task** (the PI, 2026-11-16; wl-xcon's TSK-79): it has two looks,
+  each a setting -- its *hold* look ("keep looking here") and its *act* look ("act now", or on a
+  catch "keep holding"), shape, size, color and brightness each -- and **it stays on when the
+  stimuli appear; it is never hidden as a go cue**. The go is an `Update` of the point to its act
+  look (`tasks/popout_search.py`: a gray disc that hollows out to a ring), and the reaction time
+  runs from it. wl-xcon warns a task that hides its fixation point at its go
+  (`fixation-hidden-at-go`).
