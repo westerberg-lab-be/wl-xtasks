@@ -15,7 +15,7 @@ class: experiment
 lifecycle: scaffolded
 # Public since 2026-11-07, by the PI's choice.
 visibility: public
-remote: https://github.com/jakewesterberg/wl-xtasks.git
+remote: https://github.com/westerberg-lab-be/wl-xtasks.git
 
 summary: >-
   The experiment task library: the behavioural tasks animals perform, on the

@@ -41,7 +41,7 @@ to load) and the library pull before a run (XC-150, waiting on this repository h
 - Engine spec §3.5: one task object per task module, replacing "exactly one `Trial` per module". It holds
   the trial structures (§13.3), the plans (§13.1), the procedures (§15) and the union of their declared
   parameters, which `Session.set` validates against. The loader, checks, pre-flight, review report and
-  simulator take the task object. Spec: https://github.com/jakewesterberg/wl-xcon/blob/main/docs/superpowers/specs/2026-10-07-engine-design.md
+  simulator take the task object. Spec: https://github.com/westerberg-lab-be/wl-xcon/blob/main/docs/superpowers/specs/2026-10-07-engine-design.md
   (§3.5, §21, §24).
 - XC-288 §4's declarations, which a task author writes and the load-time check enforces:
   - each changeable setting's meaning: clear-cut with a difficulty direction, expected with a direction
@@ -50,7 +50,7 @@ to load) and the library pull before a run (XC-150, waiting on this repository h
     the rig already counts, naming its denominator (§4.2);
   - what "the item chosen" means and how reaction time is defined, from which event to which (§4.3);
   - the task's content hash, a hash of content and never of the file path (§4.4).
-  Spec: https://github.com/jakewesterberg/wl-xcon/blob/main/docs/superpowers/specs/2026-10-10-xc288-training-records-design.md
+  Spec: https://github.com/westerberg-lab-be/wl-xcon/blob/main/docs/superpowers/specs/2026-10-10-xc288-training-records-design.md
   (§4, §7). The PI approved it on 2026-10-10.
 
 **Not asked.** No task is to be written or moved here yet. No design of the format is asked of wl-xtasks;
@@ -68,7 +68,7 @@ up a need.
   owns framing, escapes, checksum, DVA encoding and `Marker` 1-255. wl-xtasks owns `TaskEvent` 256-4095,
   `TaskTypeCode` 100+, and task-specific and condition codes 4096-32767. Consequence 2: "wl-xcon allocates
   nothing itself", and a task naming an unregistered code is refused at load.
-  https://github.com/jakewesterberg/wl-xcon/blob/main/docs/design/decisions/ADR-0007-event-vocabulary-ownership.md
+  https://github.com/westerberg-lab-be/wl-xcon/blob/main/docs/design/decisions/ADR-0007-event-vocabulary-ownership.md
 - This repository's `wl.yaml` publishes `task-event-vocabulary` with stability `planned` (`wl.yaml:31`),
   and says "Nothing else is allocated here yet" (`wl.yaml:54`). So wl-xtasks has allocated nothing.
 - wl-preproc agreed on 2026-09-01 that 256-4095 is wl-xtasks'. Its four values there (`FIXATION_ACQUIRED`
@@ -81,7 +81,7 @@ up a need.
   that repository has one", which is XC-108.
 - S2 §5.1 planned `STIMULUS_ON` and `STIMULUS_OFF` as `TaskEvent` additions "allocated once, in
   `wl-exptasks`, in one commit" with numbers deliberately unassigned (the same names, before the rename):
-  https://github.com/jakewesterberg/wl-xcon/blob/main/docs/superpowers/specs/2026-08-31-S2-event-vocabulary-design.md
+  https://github.com/westerberg-lab-be/wl-xcon/blob/main/docs/superpowers/specs/2026-08-31-S2-event-vocabulary-design.md
 
 **Asked of wl-xtasks.** Allocate, once and in one commit, four codes (engine spec §21, from §8.3 and §8.4):
 1. `STIMULUS_ON`, `STIMULUS_OFF`, `STIMULUS_CHANGED`: lab-wide task codes for every task. Which stimulus each
@@ -96,7 +96,7 @@ up a need.
    Engine spec §21 separately asks wl-preproc to record the continuous mode's shape and anchor codes
    (§13.6, §8.4), so tell wl-preproc's session or wl-xcon's once decided.
 
-Spec: https://github.com/jakewesterberg/wl-xcon/blob/main/docs/superpowers/specs/2026-10-07-engine-design.md
+Spec: https://github.com/westerberg-lab-be/wl-xcon/blob/main/docs/superpowers/specs/2026-10-07-engine-design.md
 (§8.3, §8.4, §21).
 
 **Not asked.** No renumbering of anything already allocated. No change to wl-preproc's frozen codec: the
